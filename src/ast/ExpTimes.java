@@ -15,7 +15,7 @@ public class ExpTimes extends Exp {
     public void compile(SymbolTable st) {
         left.compile(st);
         right.compile(st);
-        emit("MUL");
+        emit("mul");
     }
 
     @Override
