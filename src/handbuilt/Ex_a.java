@@ -21,21 +21,9 @@ public class Ex_a {
         return new Program(varDecls, stms);
     }
 
-    public static void main(String[] args) {
-        // Build the AST
+    public static void main(String[] args) throws IOException {
         Program program = buildAST();
-        System.out.println(program); // for debugging
-
-        // Compile the program (assumes compile() takes no arguments)
+        System.out.println(program);
         program.compile();
-
-        // Write the generated code to ex_a.ssma, handling potential IOException
-        try {
-            AST.write(Paths.get("ex_a.ssma"));
-            System.out.println("Compilation complete. Code written to ex_a.ssma");
-        } catch (IOException e) {
-            System.err.println("Error writing file: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 }

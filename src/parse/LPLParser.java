@@ -57,12 +57,10 @@ public class LPLParser {
         List<Stm> body = new LinkedList<>();
         lex.eat("BEGIN");
 
-        // Parse global variable declarations.
         while (lex.tok().isType("INT_TYPE")) {
             globals.add(parseGlobalVarDecl());
         }
 
-        // Parse the program body statements until the END token.
         while (!lex.tok().isType("END")) {
             body.add(parseStm());
         }
@@ -75,8 +73,8 @@ public class LPLParser {
 
     private VarDecl parseGlobalVarDecl() {
         lex.eat("INT_TYPE");
-        String id = lex.tok().image;  // Assuming the token has a field "image" for its text.
-        lex.next(); // Consume the ID.
+        String id = lex.tok().image;
+        lex.next();
         lex.eat("SEMIC");
         return new VarDecl(new TypeInt(), id);
     }
@@ -93,7 +91,6 @@ public class LPLParser {
                 return new StmBlock(blockBody);
             }
             case "ID": {
-                // Assignment statement: ID ASSIGN Exp SEMIC
                 String varName = lex.tok().image;
                 lex.next();
                 lex.eat("ASSIGN");
@@ -102,18 +99,16 @@ public class LPLParser {
                 return new StmAssign(varName, exp);
             }
             case "IF": {
-                lex.eat("IF");         // Consume the "if" keyword.
-                lex.eat("LBR");        // Consume the "(".
-                Exp condition = parseExp(); // Parse the condition.
-                lex.eat("RBR");        // Consume the ")".
-                Stm thenBranch = parseStm();  // Parse the true branch.
-
-                // Check if the next token is "ELSE". If not, throw an exception.
+                lex.eat("IF");
+                lex.eat("LBR");
+                Exp condition = parseExp();
+                lex.eat("RBR");
+                Stm thenBranch = parseStm();
                 if (!lex.tok().isType("ELSE")) {
                     throw new ParseException(lex.tok(), "Expected ELSE in if-statement");
                 }
-                lex.eat("ELSE");       // Consume the "else" keyword.
-                Stm elseBranch = parseStm();  // Parse the false branch.
+                lex.eat("ELSE");
+                Stm elseBranch = parseStm();
                 return new StmIf(condition, thenBranch, elseBranch);
             }
             case "WHILE": {
@@ -148,18 +143,15 @@ public class LPLParser {
                 return new StmNewline();
             }
             case "SWITCH": {
-                // Parse a switch statement.
                 lex.eat("SWITCH");
                 lex.eat("LBR");
                 Exp switchExp = parseExp();
                 lex.eat("RBR");
                 lex.eat("LCBR");
-
                 List<StmSwitch.Case> cases = new ArrayList<>();
                 while (lex.tok().isType("CASE")) {
                     cases.add(parseCase());
                 }
-
                 lex.eat("DEFAULT");
                 lex.eat("COLON");
                 Stm defaultCase = parseStm();
@@ -186,16 +178,13 @@ public class LPLParser {
         return new StmSwitch.Case(caseNumber, stm);
     }
 
-    // ---------------- Expression Parsing ----------------
-
     private Exp parseExp() {
         int orCount = 0;
         Exp left = parseSimpleExp();
-        // While next token is an operator, build a binary expression.
         while (lex.tok().isType("MUL") || lex.tok().isType("DIV") ||
                 lex.tok().isType("ADD") || lex.tok().isType("MINUS") ||
-                lex.tok().isType("LT")  || lex.tok().isType("LE")  ||
-                lex.tok().isType("EQ")  || lex.tok().isType("AND") ||
+                lex.tok().isType("LT") || lex.tok().isType("LE") ||
+                lex.tok().isType("EQ") || lex.tok().isType("AND") ||
                 lex.tok().isType("OR")) {
             String op = lex.tok().type;
             if (op.equals("OR")) {
@@ -242,30 +231,22 @@ public class LPLParser {
     }
 
     private Exp parseSimpleExp() {
-        // If the token is an identifier, return an ExpVar.
         if (lex.tok().isType("ID")) {
             String id = lex.tok().image;
             lex.next();
             return new ExpVar(id);
-        }
-        // Duplicate branch for ID (as originally provided)
-        else if (lex.tok().isType("ID")) {
+        } else if (lex.tok().isType("ID")) {
             String id = lex.tok().image;
-            // Check if the variable is declared in your symbol table.
             if (!symbolTable.globalNames().contains(id)) {
                 throw new ParseException(lex.tok(), "Undeclared variable (RHS/Expression): " + id);
             }
             lex.next();
             return new ExpVar(id);
-        }
-        // If the token is an integer literal, return an ExpInt.
-        else if (lex.tok().isType("INTLIT")) {
+        } else if (lex.tok().isType("INTLIT")) {
             int value = Integer.parseInt(lex.tok().image);
             lex.next();
             return new ExpInt(value);
-        }
-        // If the token is a minus, this indicates a negative integer literal.
-        else if (lex.tok().isType("MINUS")) {
+        } else if (lex.tok().isType("MINUS")) {
             lex.eat("MINUS");
             if (!lex.tok().isType("INTLIT")) {
                 throw new ParseException(lex.tok(), "Expected integer literal after minus");
@@ -273,21 +254,16 @@ public class LPLParser {
             int value = -Integer.parseInt(lex.tok().image);
             lex.next();
             return new ExpInt(value);
-        }
-        // Handle logical negation.
-        else if (lex.tok().isType("NOT")) {
+        } else if (lex.tok().isType("NOT")) {
             lex.eat("NOT");
             Exp e = parseSimpleExp();
             return new ExpNot(e);
-        }
-        // Handle parenthesized expressions.
-        else if (lex.tok().isType("LBR")) {
+        } else if (lex.tok().isType("LBR")) {
             lex.eat("LBR");
-            Exp e = parseExp(); // assuming parseExp() handles full expressions
+            Exp e = parseExp();
             lex.eat("RBR");
             return e;
-        }
-        else {
+        } else {
             throw new ParseException(lex.tok(), "Expected a simple expression (ID, INTLIT, or parenthesized expression)");
         }
     }
