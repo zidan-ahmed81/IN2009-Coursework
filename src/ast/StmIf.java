@@ -16,7 +16,18 @@ public class StmIf extends Stm {
 
     @Override
     public void compile(SymbolTable st) {
-        // To Be Completed
+        String falseLabel = st.freshLabel("ifFalse");
+        String exitLabel = st.freshLabel("ifExit");
+
+        exp.compile(st);
+        emit("jumpi_z " + falseLabel);
+
+        trueBranch.compile(st);
+        emit("jumpi " + exitLabel);
+
+        emit(falseLabel + ":");
+        falseBranch.compile(st);
+        emit(exitLabel + ":");
     }
 
     @Override

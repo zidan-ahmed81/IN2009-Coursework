@@ -1,53 +1,30 @@
 package handbuilt;
 
 import ast.*;
+import compile.SymbolTable;
+import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Ex_b {
 
     public static Program buildAST() {
-        // Declare variable types
-        TypeInt intType = new TypeInt();
+        List<VarDecl> decls = new ArrayList<>();
+        decls.add(new VarDecl(new TypeInt(), "part"));
+        decls.add(new VarDecl(new TypeInt(), "y"));
 
-        // Declare variables: part and y
-        VarDecl varPart = new VarDecl(intType, "part");
-        VarDecl varY = new VarDecl(intType, "y");
+        List<Stm> stms = new ArrayList<>();
+        stms.add(new StmAssign("part", new ExpPlus(new ExpInt(6), new ExpVar("y"))));
+        stms.add(new StmAssign("y", new ExpMinus(new ExpVar("part"), new ExpInt(3))));
+        stms.add(new StmPrintChar(new ExpTimes(new ExpPlus(new ExpVar("part"), new ExpVar("y")), new ExpInt(10))));
 
-        List<VarDecl> varDecls = new ArrayList<>();
-        varDecls.add(varPart);
-        varDecls.add(varY);
-
-        // Create variable expressions
-        ExpVar varPartExp = new ExpVar("part");
-        ExpVar varYExp = new ExpVar("y");
-
-        // part = 6 + y;
-        ExpInt int6 = new ExpInt(6);
-        ExpPlus sumExp = new ExpPlus(int6, varYExp);
-        StmAssign assignPart = new StmAssign("part", sumExp);
-
-        // y = part - 3;
-        ExpInt int3 = new ExpInt(3);
-        ExpMinus subtractExp = new ExpMinus(varPartExp, int3);
-        StmAssign assignY = new StmAssign("y", subtractExp);
-
-        // printch (part + y) * 10;
-        ExpPlus sumPartY = new ExpPlus(varPartExp, varYExp);
-        ExpTimes finalExp = new ExpTimes(sumPartY, new ExpInt(10));
-        StmPrintChar printStatement = new StmPrintChar(finalExp);
-
-        // Collect all statements
-        List<Stm> statements = new ArrayList<>();
-        statements.add(assignPart);
-        statements.add(assignY);
-        statements.add(printStatement);
-
-        return new Program(varDecls, statements);
+        return new Program(decls, stms);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Program program = buildAST();
         System.out.println(program);
+        program.compile();
     }
 }

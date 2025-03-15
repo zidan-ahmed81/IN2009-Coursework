@@ -3,7 +3,6 @@ package compile;
 import ast.Program;
 import ast.Type;
 import ast.VarDecl;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,8 +11,8 @@ import java.util.Set;
 public class SymbolTable {
 
     private Map<String, Type> globals;
-
     private int freshNameCounter;
+    private Set<String> tempLabels;
 
     /**
      * Initialise a new symbol table.
@@ -22,10 +21,10 @@ public class SymbolTable {
     public SymbolTable(Program program) {
         this.freshNameCounter = 0;
         this.globals = new HashMap<>();
-        for (VarDecl decl: program.varDecls) {
-            Type duplicate = this.globals.put(decl.name, decl.type);
-            if (duplicate != null) {
-                throw new StaticAnalysisException("Duplicate global variable: " + decl.name);
+        this.tempLabels = new HashSet<>();
+        for (VarDecl decl : program.varDecls) {
+            if (!globals.containsKey(decl.name)) {
+                globals.put(decl.name, decl.type);
             }
         }
     }
@@ -69,6 +68,17 @@ public class SymbolTable {
      * @return a fresh name which is prefixed with "$$_".
      */
     public String freshLabel(String prefix) {
-        return "$$_" + prefix + "_" + (freshNameCounter++);
+        String label = "$$_" + prefix + "_" + (freshNameCounter++);
+        if (prefix.equals("switchTemp")) {
+            tempLabels.add(label);
+        }
+        return label;
+    }
+
+    /**
+     * Returns the set of temporary labels generated.
+     */
+    public Set<String> getTempLabels() {
+        return tempLabels;
     }
 }

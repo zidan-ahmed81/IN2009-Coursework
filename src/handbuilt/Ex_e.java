@@ -3,60 +3,36 @@ package handbuilt;
 import ast.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 public class Ex_e {
 
     public static Program buildAST() {
-        // Declare variables (not as expressions)
-        Type intType = new TypeInt(); // Assuming TypeInt class exists to represent integer types
-        VarDecl varX = new VarDecl(intType, "x");
-        VarDecl varZZ = new VarDecl(intType, "zz");
+        List<VarDecl> decls = new ArrayList<>();
+        decls.add(new VarDecl(new TypeInt(), "x"));
+        decls.add(new VarDecl(new TypeInt(), "zz"));
 
-        // Create a list for variable declarations
-        List<VarDecl> varDecls = new ArrayList<>();
-        varDecls.add(varX);
-        varDecls.add(varZZ);
+        List<Stm> stms = new ArrayList<>();
+        stms.add(new StmAssign("x", new ExpMinus(new ExpVar("x"), new ExpInt(1))));
+        stms.add(new StmAssign("zz", new ExpInt(55)));
 
-        // Create expressions for the assignments and the switch
-        ExpVar varXExp = new ExpVar("x");
-        ExpVar varZZExp = new ExpVar("zz");  // Added to represent zz
-        ExpInt int1 = new ExpInt(1);
-        ExpInt int55 = new ExpInt(55);
-        ExpInt int7 = new ExpInt(7);
-        ExpInt intMinus1 = new ExpInt(-1);
-        ExpInt int99 = new ExpInt(99);
+        Exp switchExp = new ExpVar("x");
 
-        // Assignment: x = x - 1
-        StmAssign assignX = new StmAssign("x", new ExpMinus(varXExp, int1)); // x = x - 1
-
-        // Assignment: zz = 55
-        StmAssign assignZZ = new StmAssign("zz", int55); // zz = 55
-
-        // Create statements for the print actions (println)
-        StmPrintln print99 = new StmPrintln(int99); // println 99
-        StmPrintln printXPlusZZ = new StmPrintln(new ExpPlus(varXExp, varZZExp)); // println x + zz
-        StmPrintln printX = new StmPrintln(varXExp); // println x
-
-        // Switch statement
         List<StmSwitch.Case> cases = new ArrayList<>();
-        cases.add(new StmSwitch.Case(7, print99)); // case 7: println 99
-        cases.add(new StmSwitch.Case(-1, printXPlusZZ)); // case -1: println x + zz
+        cases.add(new StmSwitch.Case(7, new StmPrintln(new ExpInt(99))));
+        cases.add(new StmSwitch.Case(-1, new StmPrintln(new ExpPlus(new ExpVar("x"), new ExpVar("zz")))));
 
-        // Create default case for switch
-        StmSwitch switchStm = new StmSwitch(varXExp, printX, cases); // switch (x) { case 7: ... case -1: ... default: ... }
+        Stm defaultCase = new StmPrintln(new ExpVar("x"));
 
-        // Create the list of statements
-        List<Stm> statements = new ArrayList<>();
-        statements.add(assignX); // x = x - 1
-        statements.add(assignZZ); // zz = 55
-        statements.add(switchStm); // switch statement
+        stms.add(new StmSwitch(switchExp, defaultCase, cases));
 
-        // Return the program with variable declarations and statements
-        return new Program(varDecls, statements);
+        return new Program(decls, stms);
     }
 
     public static void main(String[] args) {
         Program program = buildAST();
-        System.out.println(program);  // Print the AST structure
+        System.out.println(program);
+        program.compile();
     }
 }

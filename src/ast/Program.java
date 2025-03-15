@@ -35,6 +35,9 @@ public class Program extends AST {
         for (String varName: st.globalNames()) {
             emit(st.makeVarLabel(varName) + ": 0");
         }
+        for (String tempLabel: st.getTempLabels()) {
+            emit(tempLabel + ": 0");
+        }
     }
 
     @Override
