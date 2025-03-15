@@ -1,0 +1,23 @@
+push 3
+storei $_count
+$$_whileBody_0:
+push 0
+loadi $_count
+push 1
+add
+sub
+test_n
+brf $$_whileExit_1
+push 32
+sysc 1
+loadi $_count
+sysc OUT_DEC
+loadi $_count
+push 1
+sub
+storei $_count
+brt $$_whileBody_0
+$$_whileExit_1:
+halt
+.data
+$_count: 0

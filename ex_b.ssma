@@ -1,0 +1,4 @@
+	halt
+.data
+$_part: 0
+$_y: 0

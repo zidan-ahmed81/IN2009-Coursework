@@ -1,0 +1,52 @@
+	loadi $_x
+	push 1
+	sub
+	storei $_x
+	push 55
+	storei $_zz
+	loadi $_x
+	storei $$_switchTemp_0
+	loadi $$_switchTemp_0
+	push 7
+	sub
+	test_z
+	push 1
+	sub
+	jumpi_z $$_case7_3
+	pop
+	loadi $$_switchTemp_0
+	push -1
+	sub
+	test_z
+	push 1
+	sub
+	jumpi_z $$_case-1_4
+	pop
+	jumpi $$_default_1
+$$_case7_3:
+	pop
+	push 99
+	sysc OUT_DEC
+	push 10
+	sysc 2
+	jumpi $$_switchExit_2
+$$_case-1_4:
+	pop
+	loadi $_x
+	loadi $_zz
+	add
+	sysc OUT_DEC
+	push 10
+	sysc 2
+	jumpi $$_switchExit_2
+$$_default_1:
+	pop
+	loadi $_x
+	sysc OUT_DEC
+	push 10
+	sysc 2
+$$_switchExit_2:
+	halt
+.data
+$_zz: 0
+$_x: 0

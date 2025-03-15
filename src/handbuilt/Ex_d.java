@@ -3,67 +3,65 @@ package handbuilt;
 import ast.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 public class Ex_d {
 
     public static Program buildAST() {
-        // Declare variable x of type int
-        TypeInt intType = new TypeInt();
-        VarDecl varX = new VarDecl(intType, "x");
+        // Declarations: int x;
+        List<VarDecl> decls = new ArrayList<>();
+        decls.add(new VarDecl(new TypeInt(), "x"));
 
-        // Create a list for variable declarations
-        List<VarDecl> varDecls = new ArrayList<>();
-        varDecls.add(varX);
+        // Main body statements
+        List<Stm> stms = new ArrayList<>();
 
-        // Create expressions for the assignments and conditionals
-        ExpVar varXExp = new ExpVar("x");
-        ExpInt int20 = new ExpInt(20);
-        ExpInt int7 = new ExpInt(7);
-        ExpInt int30 = new ExpInt(30);
-        ExpInt int77 = new ExpInt(77);
-        ExpInt int88 = new ExpInt(88);
+        // x = 20;
+        stms.add(new StmAssign("x", new ExpInt(20)));
 
-        // Assign x = 20
-        StmAssign assignX = new StmAssign("x", int20); // x = 20
+        // if (x < 20) { x = x - 7; } else { if (x < 30) println 77; else println 88; }
+        // 1) Outer if condition
+        Exp condition1 = new ExpLessThan(new ExpVar("x"), new ExpInt(20));
 
-        // If statement: if (x < 20)
-        ExpLessThan condition1 = new ExpLessThan(varXExp, int20); // x < 20
-        StmAssign assignXAfterIf = new StmAssign("x", new ExpMinus(varXExp, int7)); // x = x - 7
+        // 2) Then block: { x = x - 7; }
+        List<Stm> thenStms1 = new ArrayList<>();
+        thenStms1.add(new StmAssign("x", new ExpMinus(new ExpVar("x"), new ExpInt(7))));
+        Stm thenBlock1 = new StmBlock(thenStms1);
 
-        // Wrap the first statement (x = x - 7) inside a block (curly braces)
-        List<Stm> blockStatements = new ArrayList<>();
-        blockStatements.add(assignXAfterIf);
-        StmBlock blockAfterIf = new StmBlock(blockStatements); // x = x - 7 wrapped inside a block
+        // 3) Else block: { if (x < 30) println 77; else println 88; }
+        //    Nested if:
+        Exp condition2 = new ExpLessThan(new ExpVar("x"), new ExpInt(30));
+        Stm thenBranch2 = new StmPrintln(new ExpInt(77));
+        Stm elseBranch2 = new StmPrintln(new ExpInt(88));
+        Stm nestedIf = new StmIf(condition2, thenBranch2, elseBranch2);
 
-        // Second if-else for println 77 or 88
-        StmPrintln print77 = new StmPrintln(int77); // println 77
-        StmPrintln print88 = new StmPrintln(int88); // println 88
-        ExpLessThan condition2 = new ExpLessThan(varXExp, int30); // x < 30
-        StmIf innerIf = new StmIf(condition2, print77, print88); // if (x < 30) println 77 else println 88
+        // Wrap the nested if in a block as well
+        List<Stm> elseStms1 = new ArrayList<>();
+        elseStms1.add(nestedIf);
+        Stm elseBlock1 = new StmBlock(elseStms1);
 
-        // Final print: println x
-        StmPrintln printX = new StmPrintln(varXExp); // println x
+        // 4) Outer if statement
+        Stm ifStatement = new StmIf(condition1, thenBlock1, elseBlock1);
+        stms.add(ifStatement);
 
-        // Wrap the inner statements in a StmBlock for else (curly braces for the else)
-        List<Stm> innerStatements = new ArrayList<>();
-        innerStatements.add(innerIf);
-        StmBlock blockInner = new StmBlock(innerStatements);
+        // println x;
+        stms.add(new StmPrintln(new ExpVar("x")));
 
-        // Create the outer if statement: if (x < 20) { ... } else { ... }
-        StmIf outerIf = new StmIf(condition1, blockAfterIf, blockInner); // if (x < 20) { ... } else { ... }
-
-        // Create the list of statements
-        List<Stm> statements = new ArrayList<>();
-        statements.add(assignX); // x = 20
-        statements.add(outerIf); // outer if statement
-        statements.add(printX); // println x
-
-        // Return the program with variable declarations and statements
-        return new Program(varDecls, statements);
+        // Build and return the complete Program node
+        return new Program(decls, stms);
     }
 
     public static void main(String[] args) {
+        // Build the AST for Ex_d
         Program program = buildAST();
-        System.out.println(program);  // Print the AST structure
+        System.out.println(program);
+        program.compile();
+        try {
+            AST.write(Paths.get("ex_d.ssma"));
+            System.out.println("Compilation complete. Code written to ex_d.ssma");
+        } catch (IOException e) {
+            System.err.println("Error writing SSM code: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

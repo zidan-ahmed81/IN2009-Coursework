@@ -32,9 +32,14 @@ public class Program extends AST {
         emit("halt");
 
         emit(".data");
-        for (String varName: st.globalNames()) {
-            emit(st.makeVarLabel(varName) + ": 0");
+        for (String varName : st.globalNames()) {
+            emit(SymbolTable.makeVarLabel(varName) + ": 0");
         }
+// Also write out temporary labels.
+        for (String tempLabel : st.getTempLabels()) {
+            emit(tempLabel + ": 0");
+        }
+
     }
 
     @Override

@@ -15,7 +15,5 @@ public class ExpInt extends Exp {
     }
 
     @Override
-    public <T> T accept(ast.util.Visitor<T> visitor) {
-        return visitor.visit(this);
-    }
+    public <T> T accept(ast.util.Visitor<T> visitor) { return visitor.visit(this); }
 }

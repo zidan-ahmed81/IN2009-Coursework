@@ -12,8 +12,12 @@ public class StmPrintln extends Stm {
 
     @Override
     public void compile(SymbolTable st) {
-        // To Be Completed
+        exp.compile(st);
+        emit("sysc OUT_DEC");
+        emit("push 10");
+        emit("sysc 2");
     }
+
 
     @Override
     public <T> T accept(ast.util.Visitor<T> visitor) { return visitor.visit(this); }

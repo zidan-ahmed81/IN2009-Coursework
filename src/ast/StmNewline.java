@@ -8,8 +8,9 @@ public class StmNewline extends Stm {
 
     @Override
     public void compile(SymbolTable st) {
-        // To Be Completed
+        emit("sysc 2");
     }
+
 
     @Override
     public <T> T accept(ast.util.Visitor<T> visitor) { return visitor.visit(this); }

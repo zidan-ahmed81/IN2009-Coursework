@@ -157,7 +157,7 @@ public class PrettyPrinter extends VisitorAdapter<String> {
 
     @Override
     public String visit(StmWhile stmWhile) {
-        String s = "while (" + stmWhile.exp.accept(this) + ")";
+        String s = "while (" + stmWhile.condition.accept(this) + ")";
         s += "\n";
         if (!(stmWhile.body instanceof StmBlock)) {
             s += indent(stmWhile.body.accept(this));

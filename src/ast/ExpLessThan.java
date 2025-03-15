@@ -13,8 +13,12 @@ public class ExpLessThan extends Exp {
 
     @Override
     public void compile(SymbolTable st) {
-        // To Be Completed
+        left.compile(st);
+        right.compile(st);
+        emit("sub");
+        emit("test_n");
     }
+
 
     @Override
     public <T> T accept(ast.util.Visitor<T> visitor) { return visitor.visit(this); }

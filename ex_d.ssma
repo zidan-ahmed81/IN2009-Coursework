@@ -1,0 +1,41 @@
+push 20
+storei $_x
+loadi $_x
+push 20
+sub
+test_n
+push $$_ifFalse_0
+jump_z
+loadi $_x
+push 7
+sub
+storei $_x
+push $$_ifExit_1
+jump
+$$_ifFalse_0:
+loadi $_x
+push 30
+sub
+test_n
+push $$_ifFalse_2
+jump_z
+push 77
+sysc OUT_DEC
+push 10
+sysc 2
+push $$_ifExit_3
+jump
+$$_ifFalse_2:
+push 88
+sysc OUT_DEC
+push 10
+sysc 2
+$$_ifExit_3:
+$$_ifExit_1:
+loadi $_x
+sysc OUT_DEC
+push 10
+sysc 2
+halt
+.data
+$_x: 0

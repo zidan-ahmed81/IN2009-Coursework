@@ -3,58 +3,57 @@ package handbuilt;
 import ast.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 public class Ex_c {
 
     public static Program buildAST() {
-        // Declare variable type
-        TypeInt intType = new TypeInt();
+        // 1. Global variable declarations
+        List<VarDecl> decls = new ArrayList<>();
+        decls.add(new VarDecl(new TypeInt(), "count"));
 
-        // Declare variables: count
-        VarDecl varCount = new VarDecl(intType, "count");
+        // 2. Statements in the main program body
+        List<Stm> stms = new ArrayList<>();
 
-        List<VarDecl> varDecls = new ArrayList<>();
-        varDecls.add(varCount);
+        // Statement: count = 3;
+        stms.add(new StmAssign("count", new ExpInt(3)));
 
-        // Create variable expression for count
-        ExpVar varCountExp = new ExpVar("count");
+        // Build the while loop condition: 0 < (count + 1)
+        Exp condition = new ExpLessThan(
+                new ExpInt(0),
+                new ExpPlus(new ExpVar("count"), new ExpInt(1))
+        );
 
-        // Assign count = 3
-        StmAssign assignCount = new StmAssign("count", new ExpInt(3));
+        // Build the while loop body:
+        List<Stm> whileBody = new ArrayList<>();
+        // Statement: printch 32;  (prints the character with code 32, i.e. a space)
+        whileBody.add(new StmPrintChar(new ExpInt(32)));
+        // Statement: print count; (prints the current value of count)
+        whileBody.add(new StmPrint(new ExpVar("count")));
+        // Statement: count = count - 1;
+        whileBody.add(new StmAssign("count", new ExpMinus(new ExpVar("count"), new ExpInt(1))));
 
-        // Create the condition of the while loop: 0 < (count + 1)
-        ExpInt zero = new ExpInt(0);
-        ExpPlus countPlusOne = new ExpPlus(varCountExp, new ExpInt(1));
-        ExpLessThan condition = new ExpLessThan(zero, countPlusOne);
+        // Wrap the while body statements in a block
+        StmBlock whileBlock = new StmBlock(whileBody);
 
-        // Inside the loop: printch 32, print count, count = count - 1
-        StmPrintChar printChar = new StmPrintChar(new ExpInt(32));
-        StmPrint printCount = new StmPrint(varCountExp);
-        ExpMinus countMinusOne = new ExpMinus(varCountExp, new ExpInt(1));
-        StmAssign decrementCount = new StmAssign("count", countMinusOne);
+        // Create the while statement (using the two-argument constructor)
+        Stm whileStmt = new StmWhile(condition, whileBlock);
+        stms.add(whileStmt);
 
-        // Group all statements inside the while loop into a block
-        List<Stm> bodyStatements = new ArrayList<>();
-        bodyStatements.add(printChar);
-        bodyStatements.add(printCount);
-        bodyStatements.add(decrementCount);
-
-        // Wrap the body statements in a block
-        StmBlock whileBody = new StmBlock(bodyStatements);
-
-        // Create the while statement
-        StmWhile whileStmt = new StmWhile(condition, whileBody);
-
-        // Create list of all statements in the program
-        List<Stm> statements = new ArrayList<>();
-        statements.add(assignCount);
-        statements.add(whileStmt);
-
-        return new Program(varDecls, statements);
+        return new Program(decls, stms);
     }
 
     public static void main(String[] args) {
         Program program = buildAST();
-        System.out.println(program);  // Print the AST structure
+        System.out.println(program); // Pretty-print the AST
+        program.compile();
+        try {
+            AST.write(Paths.get("ex_c.ssma"));
+            System.out.println("Compilation complete. Code written to ex_c.ssma");
+        } catch (IOException e) {
+            System.err.println("Error writing SSM code: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -3,21 +3,21 @@ package ast;
 import compile.SymbolTable;
 
 public class ExpVar extends Exp {
-
     public final String varName;
 
     public ExpVar(String varName) {
-        this.varName = varName; 
+        this.varName = varName;
     }
 
     @Override
     public void compile(SymbolTable st) {
-        // force an exception if varName has no declaration
+        // This forces an exception if the variable is not declared.
         st.getVarType(varName);
-        // global variable, statically allocated
-        emit("push " + st.makeVarLabel(varName));
+        emit("loadi " + SymbolTable.makeVarLabel(varName));
     }
 
     @Override
-    public <T> T accept(ast.util.Visitor<T> visitor) { return visitor.visit(this); }
+    public <T> T accept(ast.util.Visitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

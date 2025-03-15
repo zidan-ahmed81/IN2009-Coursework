@@ -16,8 +16,11 @@ public class StmBlock extends Stm {
 
     @Override
     public void compile(SymbolTable st) {
-        // To Be Completed
+        for (Stm stm : stms) {
+            stm.compile(st);
+        }
     }
+
 
     @Override
     public <T> T accept(ast.util.Visitor<T> visitor) { return visitor.visit(this); }

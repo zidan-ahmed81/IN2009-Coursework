@@ -13,9 +13,10 @@ public class ExpPlus extends Exp {
 
     @Override
     public void compile(SymbolTable st) {
-        // To Be Completed
+        left.compile(st);
+        right.compile(st);
+        emit("add");
     }
-
     @Override
     public <T> T accept(ast.util.Visitor<T> visitor) { return visitor.visit(this); }
 
